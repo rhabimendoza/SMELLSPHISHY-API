@@ -1,0 +1,9 @@
+flask
+flask-cors
+gensim
+scikit-learn
+shap
+numpy
+pandas
+tldextract
+urllib3
