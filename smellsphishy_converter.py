@@ -31,35 +31,35 @@ class PhishingDetector:
         self.feature_names = self.scaler.feature_names_in_
 
         # Tld scoring data
-        self.TOTAL_BENIGN = 35445
-        self.TOTAL_COMBINED_PHISHING_ADVERSARIAL = 18014
+        self.TOTAL_BENIGN = 52087
+        self.TOTAL_COMBINED_PHISHING_ADVERSARIAL = 26312
 
         # Benign tld dictionary
         self.benign_tlds = {
-            'com': 25691, 'org': 3476, 'edu': 1310, 'int': 921, 'net': 622,
-            'gov': 413, 'ca': 398, 'co.uk': 307, 'google': 299, 'nhs.uk': 271,
-            'us': 253, 'ac.uk': 209, 'co.in': 92, 'com.au': 78, 'tv': 71,
-            'co': 65, 'fm': 65, 'info': 62, 'org.uk': 41, 'com.ph': 36,
-            'de': 34, 'youtube': 33, 'ph': 31, 'qc.ca': 29, 'io': 25,
-            'eu': 22, 'gc.ca': 19, 'it': 18, 'co.za': 18, 'link': 17,
-            'fr': 15, 'in': 15, 'gl': 15, 'me': 12, 'be': 12,
-            'co.kr': 12, 'ch': 11, 'es': 11, 'gov.uk': 11, 'biz': 11,
-            'at': 10, 'com.br': 10, 'co.jp': 10, 'dk': 9, 'blog': 8,
-            'hn': 8, 'com.tr': 8, 'ru': 8, 'app': 7, 'ie': 7
+            'com': 31202, 'org': 14044, 'edu': 1346, 'int': 921, 'net': 710,
+            'ca': 444, 'gov': 428, 'co.uk': 320, 'google': 299, 'nhs.uk': 271,
+            'us': 255, 'ac.uk': 211, 'co.in': 94, 'com.au': 80, 'tv': 77,
+            'co': 69, 'info': 67, 'fm': 67, 'at': 61, 'de': 46,
+            'org.uk': 42, 'com.ph': 38, 'ru': 37, 'youtube': 33, 'ph': 31,
+            'io': 29, 'eu': 29, 'qc.ca': 29, 'it': 26, 'fr': 26,
+            'gc.ca': 21, 'co.za': 19, 'link': 17, 'com.br': 17, 'in': 17,
+            'me': 16, 'co.jp': 16, 'gl': 16, 'jp': 14, 'ch': 14,
+            'es': 14, 'co.kr': 14, 'be': 13, 'com.tw': 13, 'com.tr': 13,
+            'gov.uk': 12, 'pl': 12, 'biz': 12, 'com.cn': 11, 'cn': 11
         }
 
         # Combined phishing and adversarial tld dictionary
-        self.combined_phishing_adversarial_tlds = {
-            'io': 6049, 'com': 3492, '': 1491, 'top': 1061, 'dev': 669,
-            'me': 587, 'de': 387, 'xyz': 307, 'to': 301, 'app': 293,
-            'net': 276, 'ly': 242, 'org': 232, 'cc': 212, 'shop': 190,
-            'co': 157, 'info': 149, 'vip': 130, 'live': 113, 'site': 108,
-            'fr': 87, 'help': 85, 'cn': 79, 'ru': 65, 'buzz': 60,
-            'link': 52, 'ink': 51, 'sbs': 48, 'online': 44, 'asia': 41,
-            'cfd': 37, 'icu': 33, 'life': 32, 'it': 31, 'one': 30,
-            'com.br': 29, 'club': 29, 'pl': 29, 'my.id': 25, 'bio': 22,
-            'lol': 21, 'network': 20, 'gy': 20, 'sh': 18, 'at': 18,
-            'id.vn': 18, 'host': 17, 'click': 16, 'es': 15, 'cyou': 15
+        self.phishing_tlds = {
+            "io": 7440, "com": 6149, "top": 2056, "dev": 1039, "me": 880,
+            "de": 586, "xyz": 500, "to": 500, "app": 544, "cc": 472,
+            "ly": 490, "net": 450, "org": 428, "cn": 339, "shop": 302,
+            "vip": 265, "site": 266, "co": 241, "info": 265, "live": 234,
+            "ink": 152, "link": 168, "help": 124, "fr": 124, "ru": 102,
+            "sbs": 124, "is": 84, "icu": 106, "buzz": 79, "online": 68,
+            "com.br": 63, "life": 61, "pl": 76, "it": 49, "my.id": 41,
+            "asia": 41, "one": 40, "lol": 44, "network": 37, "run": 58,
+            "bio": 38, "club": 38, "cfd": 35, "click": 39, "sh": 30,
+            "cyou": 31, "at": 24, "lat": 26, "host": 30, "id": 10
         }
 
     # Url preparation
@@ -113,7 +113,7 @@ class PhishingDetector:
         return sum(1 for c in string if c in consonants) / len(string) if string else 0
     def calculate_tld_score(self, tld):
         benign_freq = self.benign_tlds.get(tld, 0) / self.TOTAL_BENIGN
-        malicious_freq = self.combined_phishing_adversarial_tlds.get(tld, 0) / self.TOTAL_COMBINED_PHISHING_ADVERSARIAL
+        malicious_freq = self.phishing_tlds.get(tld, 0) / self.TOTAL_COMBINED_PHISHING_ADVERSARIAL
         if benign_freq == 0 and malicious_freq == 0:
             return 0
         if benign_freq > 0 and malicious_freq > 0:
@@ -125,6 +125,8 @@ class PhishingDetector:
     
     # Feature extraction
     def extract_features(self, url):
+
+        # Storage variables
         preprocessed = self.preprocess_url(url)
         features = {}
         
@@ -232,6 +234,8 @@ class PhishingDetector:
     
     # Make prediction
     def predict(self, url):
+
+        # Setup dataframe
         features = self.extract_features(url)
         feature_df = pd.DataFrame([features])
 
@@ -254,6 +258,7 @@ class PhishingDetector:
         # Get top 5 features
         top_features = self.get_top_features(scaled_features)
 
+        # Return needed data
         return {
             "url": url,
             "is_phishing": int(prediction),
@@ -314,7 +319,7 @@ def validURL(url):
         if not re.match(netloc_pattern, parsed.netloc):
             return False
         
-        # Ensure there's no double slash after the scheme
+        # Ensure there is no double slash after the scheme
         if url.replace(parsed.scheme + '://', '', 1).startswith('//'):
             return False
         
