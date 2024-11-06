@@ -1,7 +1,7 @@
-from flask_cors import CORS
-from smellsphishy_converter import *
-from flask import Flask, request, jsonify
 import os
+from converter import *
+from flask_cors import CORS
+from flask import Flask, request, jsonify
 
 # Create flask app
 app = Flask(__name__)
@@ -15,6 +15,7 @@ def index():
 # Create a route for checking
 @app.route('/check_url', methods=['POST'])
 def check_url():
+    
     # Get the url
     data = request.json
     url = data.get('url', '')
